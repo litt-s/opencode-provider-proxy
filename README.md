@@ -85,7 +85,71 @@ extension and that the path in `plugin` is correct.
 > `npm install` and no build step**. Keep the `.mjs` extension — it is what makes the
 > file load as an ES module regardless of the surrounding `package.json`.
 
-### Option B - npm
+### Option B - Let an AI agent install it
+
+Copy the prompt below into any coding agent that has shell access to your machine
+(opencode, Claude Code, Cursor, ...). It downloads the file, registers it, and tells
+you to restart.
+
+**English**
+
+```text
+Install the opencode plugin "opencode-provider-proxy" for me.
+
+Steps:
+1. Download
+   https://raw.githubusercontent.com/litt-s/opencode-provider-proxy/main/bundle/opencode-provider-proxy.mjs
+   to the opencode plugin directory:
+     - Windows: %USERPROFILE%\.config\opencode\plugin\opencode-provider-proxy.mjs
+     - macOS / Linux: ~/.config/opencode/plugin/opencode-provider-proxy.mjs
+   Create the directory if it does not exist. Keep the .mjs extension exactly.
+
+2. Open my global opencode config: use ~/.config/opencode/opencode.jsonc if it exists,
+   otherwise ~/.config/opencode/opencode.json, otherwise create opencode.jsonc.
+   Preserve every existing field. Make sure "$schema" is
+   "https://opencode.ai/config.json" and that the "plugin" array contains
+   "./plugin/opencode-provider-proxy.mjs" (create the array if missing, do not duplicate).
+
+3. Show me the final file content, then tell me to fully quit and restart opencode.
+
+Notes:
+- The plugin file is self-contained. Do NOT run npm install and do NOT create node_modules.
+- The proxy is auto-detected. If it is not detected, I can set it later via
+  ~/.config/opencode/proxy.json, e.g. {"proxy": "http://127.0.0.1:<PORT>"}.
+- To verify after restart, set "debug": true in that file and look for
+  "[provider-proxy] active:" in ~/.local/share/opencode/log/opencode.log
+```
+
+**中文**
+
+```text
+帮我安装 opencode 插件 "opencode-provider-proxy"。
+
+步骤：
+1. 下载
+   https://raw.githubusercontent.com/litt-s/opencode-provider-proxy/main/bundle/opencode-provider-proxy.mjs
+   保存到 opencode 插件目录：
+     - Windows：%USERPROFILE%\.config\opencode\plugin\opencode-provider-proxy.mjs
+     - macOS / Linux：~/.config/opencode/plugin/opencode-provider-proxy.mjs
+   目录不存在就创建。文件名必须保持 .mjs 扩展名。
+
+2. 打开我的全局 opencode 配置：优先 ~/.config/opencode/opencode.jsonc，
+   没有就用 ~/.config/opencode/opencode.json，都没有则新建 opencode.jsonc。
+   保留原有全部字段，确保 "$schema" 为 "https://opencode.ai/config.json"，
+   并在 "plugin" 数组中加入 "./plugin/opencode-provider-proxy.mjs"
+   （没有该数组就创建，不要重复添加）。结果必须是合法 JSONC。
+
+3. 把最终文件内容给我看，然后提醒我完全退出并重启 opencode。
+
+注意：
+- 插件文件是自包含的，不要执行 npm install，也不要创建 node_modules。
+- 代理会自动识别；若识别不到，我之后可在 ~/.config/opencode/proxy.json 里设置，
+  例如 {"proxy": "http://127.0.0.1:<端口>"}。
+- 重启后想验证：把该文件里的 "debug" 设为 true，然后在
+  ~/.local/share/opencode/log/opencode.log 里搜索 "[provider-proxy] active:"。
+```
+
+### Option C - npm
 
 ```jsonc
 {
