@@ -13,32 +13,77 @@ else connects directly. Works in the opencode TUI, the CLI, and the desktop app.
 
 ## Install
 
-### Option A - GitHub / offline (no npm account needed)
+### Option A - Download from GitHub (no npm account needed)
 
-1. Download [`bundle/opencode-provider-proxy.mjs`](./bundle/opencode-provider-proxy.mjs),
-   or clone/download this repo as a zip.
-2. Copy the file into your opencode plugin folder:
+The plugin ships as a **single self-contained file**, so installing it is just
+"download one file + add one line".
 
-   | OS      | Path                                          |
-   | ------- | --------------------------------------------- |
-   | Windows | `C:\Users\<you>\.config\opencode\plugin\`     |
-   | macOS   | `~/.config/opencode/plugin/`                  |
-   | Linux   | `~/.config/opencode/plugin/`                  |
+#### 1. Download the plugin file
 
-3. Reference it in your global `opencode.json` / `opencode.jsonc`:
+Direct link:
 
-   ```jsonc
-   {
-     "$schema": "https://opencode.ai/config.json",
-     "plugin": ["./plugin/opencode-provider-proxy.mjs"]
-   }
-   ```
+```
+https://raw.githubusercontent.com/litt-s/opencode-provider-proxy/main/bundle/opencode-provider-proxy.mjs
+```
 
-4. Restart opencode.
+Or with a command.
 
-The `.mjs` file bundles everything it needs (including `undici`), so there is **no
-`npm install` and no build step**. Keep the `.mjs` extension — it is what makes the
-file load as an ES module regardless of the surrounding `package.json`.
+**Windows (PowerShell):**
+
+```powershell
+$dir = "$env:USERPROFILE\.config\opencode\plugin"
+New-Item -ItemType Directory -Path $dir -Force | Out-Null
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/litt-s/opencode-provider-proxy/main/bundle/opencode-provider-proxy.mjs" -OutFile "$dir\opencode-provider-proxy.mjs"
+```
+
+**macOS / Linux:**
+
+```bash
+mkdir -p ~/.config/opencode/plugin
+curl -fsSL "https://raw.githubusercontent.com/litt-s/opencode-provider-proxy/main/bundle/opencode-provider-proxy.mjs" \
+  -o ~/.config/opencode/plugin/opencode-provider-proxy.mjs
+```
+
+**Manual:** open the link above in a browser, then *Save as* to the plugin folder
+(`C:\Users\<you>\.config\opencode\plugin\` on Windows, `~/.config/opencode/plugin/` elsewhere).
+You can also download the repo as a zip and copy `bundle/opencode-provider-proxy.mjs`
+out of it.
+
+#### 2. Register the plugin
+
+Add this to your global `opencode.json` / `opencode.jsonc`
+(`C:\Users\<you>\.config\opencode\opencode.jsonc` on Windows):
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["./plugin/opencode-provider-proxy.mjs"]
+}
+```
+
+The path is relative to the config file. An absolute path also works, e.g.
+`"file:///C:/Users/<you>/.config/opencode/plugin/opencode-provider-proxy.mjs"`.
+
+#### 3. Restart opencode
+
+Fully quit and reopen opencode. The proxy is auto-detected, so no further setup is
+usually needed.
+
+#### 4. Verify
+
+Set `"debug": true` in the config (see below) and check the opencode server log
+(`C:\Users\<you>\.local\share\opencode\log\opencode.log` on Windows) for:
+
+```
+[provider-proxy] active: 20 host rules via undici (proxy: http://127.0.0.1:7897)
+```
+
+If you see `failed to load plugin` instead, make sure the file kept its `.mjs`
+extension and that the path in `plugin` is correct.
+
+> The `.mjs` file bundles everything it needs (including `undici`), so there is **no
+> `npm install` and no build step**. Keep the `.mjs` extension — it is what makes the
+> file load as an ES module regardless of the surrounding `package.json`.
 
 ### Option B - npm
 
